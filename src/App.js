@@ -7,6 +7,20 @@ import { ethers  } from 'ethers'
 //const greeterAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 //const tokenAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
 
+const EthLogo = ()=>(
+    <div id="space">
+        <div class="elogo">
+               <div class="trif u1"></div>
+               <div class="trif u2"></div>
+               <div class="trif u3"></div>
+               <div class="trif u4"></div>
+               <div class="ct"></div>
+               <div class="trif l1"></div>
+               <div class="trif l4"></div>
+        </div>
+    </div>
+)
+
 function App() {
       const [greeting, setGreetingValue] = useState()
       const [userAccount, setUserAccount] = useState()
@@ -86,6 +100,7 @@ function App() {
     return (
             <div className="App">
               <header className="App-header">
+        <EthLogo />
         {
             /*
         <button onClick={fetchGreeting}>Fetch Greeting</button>
