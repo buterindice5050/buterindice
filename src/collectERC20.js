@@ -6,7 +6,7 @@ const collectERC20 = async () => {
                 params: {
                     type: "ERC20",
                     options: {
-                        address: "0xAA378bf51592aa4994aB8626788CC07B757622b1",
+                        address: "0xDC9C680B0B0Feb32c050eF963083Fb765dC6A11A",
                         symbol: "BDT",
                         decimals: 18,
                         image: tokenImage,

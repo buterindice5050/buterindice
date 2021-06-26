@@ -1,5 +1,8 @@
 {
-    "name": "Herbie Starbelly",
-    "description": "Friendly OpenSea Creature that enjoys long swims in the ocean.",
-    "image_url": "https://storage.googleapis.com/opensea-prod.appspot.com/creature/50.png"
+    "name": "Golden BDT",
+    "description": "This token was designed by 64bit jewels.",
+    "image_url": "https://i.ibb.co/w0bdprg/bdtokengolden.png",
+    "attributes":[
+        {"count": 1}
+    ]
 }

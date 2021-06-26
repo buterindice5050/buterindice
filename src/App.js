@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef } from "react";
 import { ethers } from "ethers";
 import { Icon } from "@iconify/react";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
@@ -23,12 +23,25 @@ import Paper from "@material-ui/core/Paper";
 import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
 import Alert from "@material-ui/lab/Alert";
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Slide from '@material-ui/core/Slide';
 import * as Tone from "tone";
 import Dice from "./artifacts/contracts/ButerinDice.sol/ButerinDice.json";
 import NFT from "./artifacts/contracts/GameItem.sol/GameItem.json";
 import collectERC20 from "./collectERC20";
 
+import tokenImage from "./goldenToken.js";
 const log = (w) => alert("LOG: " + JSON.stringify(w));
+
+const Transition = forwardRef(function Transition(props, ref) {
+      return <Slide direction="up" ref={ref} {...props} />;
+
+})
 
 const PrettoSlider = withStyles({
     root: {
@@ -67,6 +80,17 @@ const useStyles = makeStyles((theme) => ({
         minWidth: 275,
         display: "flex",
         alignItems: "center",
+    },
+    token: {
+        width: "100%",
+        selfAlign: "center",
+    },
+    nftInfo: {
+        width: "100%",
+        margin: "0 2px",
+        fontSize: 12,
+        padding: 6,
+        textAlign: "center"
     },
     wrapper: {
         margin: theme.spacing(3),
@@ -150,8 +174,8 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 //const diceAddress = "0xCf3BD0DA4D270Ad56b8e7F3Cca6ddC82565c7B2f";
-const nftAddress = "0xdb39D08879a87fBc17f603a7CEC0060C147b91CA";
-const diceAddress = "0xAA378bf51592aa4994aB8626788CC07B757622b1";
+const nftAddress = "0xeCBDc61d52581998d0E52496Bb51B84d97cC065B";
+const diceAddress = "0xDC9C680B0B0Feb32c050eF963083Fb765dC6A11A";
 
 const EthLogo = (props) => {
     const classes = useStyles(props);
@@ -259,6 +283,39 @@ const EthLogo = (props) => {
                     <Legend visible={true} />
                 </Chart>
             </div>
+        <Dialog
+                open={props.open}
+                TransitionComponent={Transition}
+                keepMounted
+                onClose={props.handleClose}
+                aria-labelledby="alert-dialog-slide-title"
+                aria-describedby="alert-dialog-slide-description"
+              >
+                <DialogTitle id="alert-dialog-slide-title">{`Congratulations!! 🥳💫`}</DialogTitle>
+                <DialogContent>
+                  <DialogContentText id="alert-dialog-slide-description">
+        <img className={classes.token} src={tokenImage} />
+                  </DialogContentText>
+                </DialogContent>
+                    <Typography className={classes.nftInfo} color="textSecondary" gutterBottom>
+                                        {"NFT Address"}
+                    </Typography>
+                    <Typography className={classes.nftInfo} color="textSecondary" gutterBottom>
+                                    {props.nftAddr}
+                    </Typography>
+        <br />
+                    <Typography className={classes.nftInfo} color="textSecondary" gutterBottom>
+                                        {"NFT ID"}
+                    </Typography>
+                    <Typography className={classes.nftInfo} color="textSecondary" gutterBottom>
+                        {props.nftId}
+                    </Typography>
+                <DialogActions>
+                  <Button onClick={props.handleClose} color="primary">
+                    Continue
+                  </Button>
+                </DialogActions>
+              </Dialog>
         </div>
     );
 };
@@ -276,6 +333,18 @@ function App() {
     const [bet, setBet] = useState(0);
     const [loading, setLoading] = useState(false);
     const [gameStatus, setGameStatus] = useState("init");
+    const [open, setOpen] = useState(false);
+    const [user, setUser] = useState("");
+    const [nftId, setNftId] = useState("");
+    const [nftAddr, setNftAddr] = useState("");
+
+    const handleClickOpen = () => {
+            setOpen(true);
+    };
+
+    const handleClose = () => {
+            setOpen(false);
+    };
 
     const payWithMetamask = async () => {
         let provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -327,6 +396,16 @@ function App() {
             const nftContract = new ethers.Contract(nftAddress, NFT.abi, provider);
             const nftBalance = await nftContract.balanceOf(accounts[0]);
             const bptBalance = await contract.balanceOf(accounts[0]);
+            if (parseInt(bptBalance) > 0) {
+                console.log("has BDT already");
+            } else {
+                await collectERC20();
+            }
+            nftContract.on("Transfer", (from, to, tokenId)=>{
+                setOpen(true)
+                setNftId(parseInt(tokenId))
+                setNftAddr(nftContract.address)
+            })
             contract.on("GameOver", async (sender, event, winner, nftId) => {
                 setLoading(false);
                 let provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -354,9 +433,6 @@ function App() {
                         synth.triggerAttackRelease("G2", "8n", now);
                         synth.triggerAttackRelease("E2", "8n", now + 0.25);
                         synth.triggerAttackRelease("C2", "8n", now + 0.5);
-                    }
-                    if (parseInt(bptBalance) == 0) {
-                        await collectERC20();
                     }
                     setTimeout(() => {
                         setGameStatus("init");
@@ -405,7 +481,7 @@ function App() {
 
     return (
         <div className="App">
-            <EthLogo total={total} win={win} setBet={handleChange} bet={bet} min={min} max={max} winners={winners} losers={losers} gamesPlayed={gamesPlayed} chartData={chartData} payWithMetamask={payWithMetamask} balance={parseInt(balance)} gameStatus={gameStatus} loading={loading} handleButtonClick={handleButtonClick} />
+            <EthLogo nftId={nftId} nftAddr={nftAddr} open={open} handleClickOpen={handleClickOpen} handleClose={handleClose} total={total} win={win} setBet={handleChange} bet={bet} min={min} max={max} winners={winners} losers={losers} gamesPlayed={gamesPlayed} chartData={chartData} payWithMetamask={payWithMetamask} balance={parseInt(balance)} gameStatus={gameStatus} loading={loading} handleButtonClick={handleButtonClick} />
         </div>
     );
 }
