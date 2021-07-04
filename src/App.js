@@ -33,6 +33,7 @@ import Slide from '@material-ui/core/Slide';
 import * as Tone from "tone";
 import Dice from "./artifacts/contracts/ButerinDice.sol/ButerinDice.json";
 import NFT from "./artifacts/contracts/GameItem.sol/GameItem.json";
+import BDT from "./artifacts/contracts/BDT.sol/BDT.json";
 import collectERC20 from "./collectERC20";
 
 import tokenImage from "./goldenToken.js";
@@ -174,8 +175,14 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 //const diceAddress = "0xCf3BD0DA4D270Ad56b8e7F3Cca6ddC82565c7B2f";
-const nftAddress = "0xeCBDc61d52581998d0E52496Bb51B84d97cC065B";
-const diceAddress = "0xDC9C680B0B0Feb32c050eF963083Fb765dC6A11A";
+/*
+const nftAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const bdtAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+const diceAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+*/
+const nftAddress = "0x6c8F47d3bb4eE19778A303064087b18BDE870c5e";
+const bdtAddress = "0xA2f25ed17c37788495A6Caa78DCd678E8b893C92";
+const diceAddress = "0x7a0c007d34BfE0581c99eC2785F4da3E0D22c711";
 
 const EthLogo = (props) => {
     const classes = useStyles(props);
@@ -394,8 +401,9 @@ function App() {
 
             const contract = new ethers.Contract(diceAddress, Dice.abi, provider);
             const nftContract = new ethers.Contract(nftAddress, NFT.abi, provider);
+            const bdtContract = new ethers.Contract(bdtAddress, BDT.abi, provider);
             const nftBalance = await nftContract.balanceOf(accounts[0]);
-            const bptBalance = await contract.balanceOf(accounts[0]);
+            const bptBalance = await bdtContract.balanceOf(accounts[0]);
             if (parseInt(bptBalance) > 0) {
                 console.log("has BDT already");
             } else {
